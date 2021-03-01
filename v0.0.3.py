@@ -1,4 +1,5 @@
 import sys, pygame #import pygame, the main library used for graphics
+import random
 
 mainClock = pygame.time.Clock()
 
@@ -14,14 +15,6 @@ screen_background = (145, 194, 255)
 screen = pygame.display.set_mode([screen_width, screen_height]) #Creates the screen itself
 screen.fill(screen_background) #Set the background color of the window
 pygame.display.set_caption("Photoelectric Effect Simulator V-Alpha") #Set the title of the window
-
-class Photon:
-    def __init__(self,wavelength, start_pos, end_pos):
-        self.wavelength = wavelength
-        self.start_pos = start_pos
-        self.end_pos = end_pos
-
-test_photon = Photon(20, (200, 200), (600, 600))
 
 def button_clicked(button, width, height, mouse, click):
     #Defines the bounds of the button
@@ -95,36 +88,51 @@ def main_menu():
         pygame.display.update()
         mainClock.tick(60) #The framerate is set to 60 fps; will help when managing the animation later
 
+class Photon:
+    def __init__(self, wavelength, end_pos):
+        self.wavelength = wavelength
+        self.end_pos = end_pos
+
+    def draw(self, start_pos, i):
+        reached_end = False
+        steps = 120
+
+        if i < steps+1:
+            pygame.draw.circle(screen, white, (int(start_pos[0] + ((self.end_pos[0]-start_pos[0])/steps)*i), int(start_pos[1] + ((self.end_pos[1]-start_pos[1])/steps)*i)), 10)
+            ##print((int(start_pos[0] + ((self.end_pos[0]-start_pos[0])/steps)*i), int(start_pos[1] + ((self.end_pos[1]-start_pos[1])/steps)*i)))
+            i += 1
+
+        return i
+
+photon_1 = Photon(20, (random.randrange(35, 75), random.randrange(625, 865)))
+photon_2 = Photon(30, (random.randrange(35, 75), random.randrange(625, 865)))
+
+
 #Function to call the main simulation screen
 def main_simulation():
     screen.fill(screen_background) #Remove all of the previous text and buttons
     pygame.display.set_caption("Photoelectric Effect Simulator - Simulation") #Update the window title
 
     running_sim = True
-    i=1
+    metal_color = (255,255,255) #determined by database later
+    i = 1
+    i2 = 1
 
     while running_sim:
 
         #Temporary testing values to move a circle from a to b
-        start_pos = (700, 50)
-        end_pos = (400, 500)
-
-        #Essentially acts as how fast the circle will move; it is how many frames the animation uses. Lower number = faster movement
-        #Will be useful later to represent differences in Kinetic Energy of emitted photoelectrons
-        steps = 120
+        start_pos = (400, 550)
 
         screen.fill(screen_background) #Clear the screen again so the circle's previous position is removed
 
-        #Temporary; just to show where the circle is moving to and from
-        pygame.draw.circle(screen, (0,0,0), start_pos, 10)
-        pygame.draw.circle(screen, (0,0,0), end_pos, 10)
+        metal_plate = pygame.draw.rect(screen, metal_color, (30, 620, 50, 250))
+        pygame.draw.line(screen, (0,0,0), (80, 620), (400, 550))
+        pygame.draw.line(screen, (0,0,0), (80, 745), (400, 550))
+        pygame.draw.line(screen, (0,0,0), (80, 870), (400, 550))
+        lamp = pygame.draw.circle(screen, (255,255,255), (400, 550), 15)
 
-        #Until the number of steps has been completed, continue to move the circle towards the end position
-        if i < steps+1:
-            pygame.draw.circle(screen, white, (int(start_pos[0] + ((end_pos[0]-start_pos[0])/steps)*i), int(start_pos[1] + ((end_pos[1]-start_pos[1])/steps)*i)), 10)
-            print((int(start_pos[0] + ((end_pos[0]-start_pos[0])/steps)*i), int(start_pos[1] + ((end_pos[1]-start_pos[1])/steps)*i)))
-            i += 1
-            print(i)
+        i = photon_1.draw(start_pos, i)
+        i2 = photon_2.draw(start_pos, i2)
 
         #Event loop
         for event in pygame.event.get():
